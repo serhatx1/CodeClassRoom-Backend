@@ -8,6 +8,6 @@ type Class struct {
 	gorm.Model
 	Name     string  `gorm:"notnull"`
 	Students []Users `gorm:"many2many:class_students;"`
-	OwnerID  uint
-	Owner    Users `gorm:"foreignKey:OwnerID;references:ID"`
+	OwnerID  string  `gorm:"notnull;size:36"`
+	Owner    *Users  `gorm:"foreignKey:OwnerID;references:ID"`
 }

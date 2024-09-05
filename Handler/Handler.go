@@ -8,6 +8,6 @@ import (
 
 func SetupHandler(e *echo.Echo) {
 	fmt.Println("Setup is working..")
-	e.GET("/", Service.Login)
+	e.POST("/api/register", Service.Register)
 
 }
