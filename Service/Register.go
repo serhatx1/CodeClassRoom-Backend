@@ -22,9 +22,10 @@ func Register(c echo.Context) error {
 	}
 	fmt.Println("user.ID")
 
-	err = DB.DB().First(&Models.Users{}, "email = ?", user.Email).Error
-	if err.Error == nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	r := DB.DB().Where("email = ?", user.Email).First(&user)
+
+	if r.RowsAffected > 0 {
+		return c.JSON(http.StatusUnprocessableEntity, fmt.Errorf("User Already Exists").Error())
 	}
 	uid := GenerateUID()
 	user.ID = uid
