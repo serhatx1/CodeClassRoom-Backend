@@ -1,4 +1,3 @@
-// Middlewares/JwtMw.go
 package middleware
 
 import (
@@ -38,9 +37,10 @@ func JWTAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid or expired token")
 		}
 
-		log.Printf("Token validated successfully for user: %v", claims["email"])
+		log.Printf("Token validated successfully for user: %v", claims["id"])
 		c.Set("user", token)
 		c.Set("claims", claims)
+		fmt.Println("claims", claims)
 
 		return next(c)
 	}

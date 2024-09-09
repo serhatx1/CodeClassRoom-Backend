@@ -1,27 +1,23 @@
 package Service
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt"
 	"os"
 )
 
 func ValidateToken(tokenStr string) (*jwt.Token, jwt.MapClaims, error) {
-	secret := []byte(os.Getenv("JWT_SECRET"))
+	// Replace this key with the appropriate key and method used to sign the tokens
+	key := []byte(os.Getenv("JWT_SECRET"))
 
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, jwt.ErrSignatureInvalid
-		}
-		return secret, nil
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return key, nil
 	})
 
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to validate token: %w", err)
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return token, claims, nil
-	}
-
-	return nil, nil, jwt.ErrSignatureInvalid
+	return token, claims, nil
 }

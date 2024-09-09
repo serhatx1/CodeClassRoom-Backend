@@ -6,15 +6,14 @@ import (
 	"time"
 )
 
-func GenerateToken(email string) (string, error) {
+func GenerateToken(id string) (string, error) {
 	secretKey := []byte(os.Getenv("JWT_SECRET"))
 
 	claims := jwt.MapClaims{
-		"email": email,
-		"exp":   time.Now().Add(time.Hour * 24).Unix(),
+		"id":  string(id),
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	}
 
-	// Create token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return token.SignedString(secretKey)

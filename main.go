@@ -4,6 +4,7 @@ import (
 	"eSchool/DB"
 	"eSchool/Handler"
 	"eSchool/Models"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"log"
@@ -12,14 +13,15 @@ import (
 func main() {
 	e := echo.New()
 
-	// Setup CORS middleware
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:3000"}, // Adjust this as needed
 		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
 		AllowHeaders: []string{"*"},
 	}))
 
-	// Setup handlers
 	Handler.SetupHandler(e)
 
 	// Initialize database
