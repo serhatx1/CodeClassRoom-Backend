@@ -37,5 +37,9 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Sorry, Something went wrong"})
 	}
 
+	if user.Role == "" {
+		return c.JSON(http.StatusAccepted, map[string]string{"token": tokenString})
+	}
+
 	return c.JSON(http.StatusOK, map[string]string{"token": tokenString})
 }

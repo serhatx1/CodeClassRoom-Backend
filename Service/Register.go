@@ -65,9 +65,6 @@ func Register(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
 	}
 	user.Password = hashedPassword
-	if len(user.Role) == 0 {
-		user.Role = "student"
-	}
 	err = DB.DB().Create(user).Error
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})

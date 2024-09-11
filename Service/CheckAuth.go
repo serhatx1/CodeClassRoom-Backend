@@ -7,7 +7,6 @@ import (
 )
 
 func ValidateToken(tokenStr string) (*jwt.Token, jwt.MapClaims, error) {
-	// Replace this key with the appropriate key and method used to sign the tokens
 	key := []byte(os.Getenv("JWT_SECRET"))
 
 	claims := jwt.MapClaims{}

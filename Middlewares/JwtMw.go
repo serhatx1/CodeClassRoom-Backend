@@ -15,7 +15,6 @@ func JWTAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		fmt.Println(c.Request().Header)
 		fmt.Println(c.Request().Header.Get("Authorization"))
 		if authHeader == "" {
-			log.Println("Missing Authorization header")
 			return echo.NewHTTPError(http.StatusUnauthorized, "Missing or invalid token")
 		}
 

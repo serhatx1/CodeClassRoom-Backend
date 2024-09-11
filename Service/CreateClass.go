@@ -4,12 +4,11 @@ import (
 	"crypto/rand"
 	"eSchool/DB"
 	"eSchool/Models"
+	"eSchool/Util"
 	"encoding/hex"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -39,29 +38,12 @@ func CreateClass(c echo.Context) error {
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-	secretKey := []byte(os.Getenv("JWT_SECRET"))
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return secretKey, nil
-	})
-
+	userID, err := Util.ParseUserIDFromToken(tokenString)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid token"})
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok || !token.Valid {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid token claims"})
-	}
-
-	UserID, ok := claims["id"].(string)
-	if !ok {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "User ID not found in claims"})
-	}
-
-	newClass.OwnerID = UserID
+	newClass.OwnerID = userID
 
 	classToken, err := GenerateToken(16)
 	if err != nil {
@@ -70,7 +52,7 @@ func CreateClass(c echo.Context) error {
 	newClass.Token = classToken
 
 	var user Models.Users
-	if err := DB.DB().Where("id = ?", UserID).First(&user).Error; err != nil {
+	if err := DB.DB().Where("id = ?", userID).First(&user).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "User ID not found"})
 	}
 
