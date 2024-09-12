@@ -19,7 +19,7 @@ func SelectRole(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input data"})
 	}
 	role := requestBody.Role
-
+	fmt.Println(role)
 	if role != "student" && role != "teacher" && role != "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid role. Must be 'student', 'teacher', or empty."})
 	}

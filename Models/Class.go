@@ -11,4 +11,5 @@ type Class struct {
 	Token    string
 	OwnerID  string `gorm:"notnull;size:36"`
 	Owner    *Users `gorm:"foreignKey:OwnerID;references:ID"`
+	Exams    []Exam `gorm:"foreignKey:ClassID"`
 }
