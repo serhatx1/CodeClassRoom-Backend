@@ -4,7 +4,6 @@ import (
 	"eSchool/DB"
 	"eSchool/Models"
 	"eSchool/Util"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -18,7 +17,6 @@ func Login(c echo.Context) error {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	fmt.Println(loginRequest)
 	if err := c.Bind(&loginRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid req"})
 	}

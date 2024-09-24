@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"eSchool/Service"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
@@ -12,8 +11,6 @@ import (
 func JWTAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")
-		fmt.Println(c.Request().Header)
-		fmt.Println(c.Request().Header.Get("Authorization"))
 		if authHeader == "" {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Missing or invalid token")
 		}
@@ -39,7 +36,6 @@ func JWTAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		log.Printf("Token validated successfully for user: %v", claims["id"])
 		c.Set("user", token)
 		c.Set("claims", claims)
-		fmt.Println("claims", claims)
 
 		return next(c)
 	}

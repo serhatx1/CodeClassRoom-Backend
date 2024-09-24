@@ -4,7 +4,6 @@ import (
 	"eSchool/DB"
 	"eSchool/Models"
 	"eSchool/Util"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
@@ -19,7 +18,6 @@ func SelectRole(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid input data"})
 	}
 	role := requestBody.Role
-	fmt.Println(role)
 	if role != "student" && role != "teacher" && role != "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid role. Must be 'student', 'teacher', or empty."})
 	}
@@ -49,7 +47,6 @@ func SelectRole(c echo.Context) error {
 	}
 
 	user.Role = role
-	fmt.Println("role", role)
 	if err := DB.DB().Save(&user).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update user role"})
 	}

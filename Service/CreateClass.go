@@ -4,12 +4,10 @@ import (
 	"crypto/rand"
 	"eSchool/DB"
 	"eSchool/Models"
-	"eSchool/Util"
 	"encoding/hex"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"strings"
 )
 
 func GenerateToken(length int) (string, error) {
@@ -22,29 +20,18 @@ func GenerateToken(length int) (string, error) {
 
 func CreateClass(c echo.Context) error {
 	var newClass Models.Class
-
+	var userID string
 	if err := c.Bind(&newClass); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid class data"})
 	}
 
-	authHeader := c.Request().Header.Get("Authorization")
-	if authHeader == "" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Authorization header is missing"})
+	if err := GetUserID(&userID, c); err != nil {
+		return err
 	}
-
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid authorization header format"})
+	if len(userID) < 5 {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
 	}
-
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
-	userID, err := Util.ParseUserIDFromToken(tokenString)
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
-	}
-
 	newClass.OwnerID = userID
-
 	classToken, err := GenerateToken(16)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate class token"})
@@ -55,7 +42,6 @@ func CreateClass(c echo.Context) error {
 	if err := DB.DB().Where("id = ?", userID).First(&user).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "User ID not found"})
 	}
-
 	if err := DB.DB().Create(&newClass).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create class"})
 	}

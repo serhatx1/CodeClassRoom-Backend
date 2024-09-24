@@ -4,7 +4,6 @@ import (
 	"eSchool/DB"
 	"eSchool/Models"
 	"eSchool/Util"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -47,7 +46,6 @@ func Register(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
 	}
-	fmt.Println(user.Email, user.Name)
 
 	err = DB.DB().Where("email = ?", user.Email).First(&user).Error
 	if err == nil {
