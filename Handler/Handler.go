@@ -14,4 +14,6 @@ func SetupHandler(e *echo.Echo) {
 	e.POST("/api/selectrole", middleware.JWTAuthMiddleware(Service.SelectRole))
 	e.POST("/api/class/create", middleware.JWTAuthMiddleware(Service.CreateClass))
 	e.GET("/api/class/get", middleware.JWTAuthMiddleware(Service.GetClasses))
+	e.GET("/api/class/:id", middleware.JWTAuthMiddleware(Service.CheckParticularClass))
+
 }
