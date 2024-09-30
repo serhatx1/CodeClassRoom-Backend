@@ -42,6 +42,9 @@ func CreateClass(c echo.Context) error {
 	if err := DB.DB().Where("id = ?", userID).First(&user).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "User ID not found"})
 	}
+	if user.Role == "student" {
+		return c.JSON(http.StatusForbidden, map[string]string{"error": "User is not teacher	"})
+	}
 	if err := DB.DB().Create(&newClass).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create class"})
 	}
