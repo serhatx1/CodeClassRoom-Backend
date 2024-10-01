@@ -14,7 +14,7 @@ func CheckParticularClass(c echo.Context) error {
 	if err := GetUserID(&userID, c); err != nil {
 		return err
 	}
-	if len(userID) < 5 {
+	if len(userID) < TokenLength {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
 	}
 
