@@ -3,6 +3,7 @@ package Service
 import (
 	"eSchool/DB"
 	"eSchool/Models"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -18,6 +19,7 @@ const (
 )
 
 func JoinClass(c echo.Context) error {
+	fmt.Println("hellos")
 	var userID string
 	var user Models.Users
 	var tokenClass TokenClass
@@ -26,7 +28,7 @@ func JoinClass(c echo.Context) error {
 	if err := c.Bind(&tokenClass); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, map[string]string{TokenIsInvalid: err.Error()})
 	}
-
+	fmt.Println(tokenClass.Token)
 	if err := GetUserID(&userID, c); err != nil {
 		return err
 	}
@@ -42,7 +44,7 @@ func JoinClass(c echo.Context) error {
 	if user.Role != "student" {
 		return c.JSON(http.StatusForbidden, map[string]string{"error": InvalidUserRole})
 	}
-
+	fmt.Println("1", tokenClass.Token)
 	if err := DB.DB().Where("token=?", tokenClass.Token).First(&class).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{TokenIsInvalid: err.Error()})
 	}
