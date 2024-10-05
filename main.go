@@ -31,14 +31,15 @@ func main() {
 		return
 	}
 
-	// Migrate database schema
 	err := db.AutoMigrate(
 		&Models.Users{},
 		&Models.Class{},
-		&Models.Exam{},
-		&Models.Question{},
 		&Models.Result{},
 		&Models.Submission{},
+		&Models.Question{},
+		&Models.Exam{},
+		&Models.ExamStudents{},
+		&Models.StudentClasses{},
 	)
 	if err != nil {
 		log.Fatalf("Error migrating database: %v", err)

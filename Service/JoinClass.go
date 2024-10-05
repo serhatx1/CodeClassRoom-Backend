@@ -44,7 +44,6 @@ func JoinClass(c echo.Context) error {
 	if user.Role != "student" {
 		return c.JSON(http.StatusForbidden, map[string]string{"error": InvalidUserRole})
 	}
-	fmt.Println("1", tokenClass.Token)
 	if err := DB.DB().Where("token=?", tokenClass.Token).First(&class).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{TokenIsInvalid: err.Error()})
 	}

@@ -6,10 +6,10 @@ import (
 
 type Class struct {
 	gorm.Model
-	Name     string  `gorm:"notnull"`
-	Students []Users `gorm:"many2many:class_students;"`
-	Token    string
-	OwnerID  string `gorm:"notnull;size:36"`
-	Owner    *Users `gorm:"foreignKey:OwnerID;references:ID"`
-	Exams    []Exam `gorm:"foreignKey:ClassID"`
+	Name     string  `gorm:"not null"`
+	Students []Users `gorm:"many2many:student_classes;"`
+	Token    string  `gorm:"not null;unique"`
+	OwnerID  string  `gorm:"size:36;not null"`
+	Owner    *Users  `gorm:"foreignKey:OwnerID;references:ID"`
+	Exams    []Exam  `gorm:"foreignKey:ClassID"`
 }
