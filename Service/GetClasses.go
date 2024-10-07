@@ -17,7 +17,7 @@ func GetClasses(c echo.Context) error {
 	if len(userID) < TokenLength {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
 	}
-	err := DB.DB().Where("owner_id=?", userID).Find(&Classes).Error
+	err := DB.DB().Where("owner_id=?", userID).Preload("Students").Find(&Classes).Error
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

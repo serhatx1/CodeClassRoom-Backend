@@ -40,6 +40,8 @@ func main() {
 		&Models.Exam{},
 		&Models.ExamStudents{},
 		&Models.StudentClasses{},
+		&Models.Problem{},
+		&Models.TestCase{},
 	)
 	if err != nil {
 		log.Fatalf("Error migrating database: %v", err)

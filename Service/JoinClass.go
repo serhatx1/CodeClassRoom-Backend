@@ -44,10 +44,10 @@ func JoinClass(c echo.Context) error {
 	if user.Role != "student" {
 		return c.JSON(http.StatusForbidden, map[string]string{"error": InvalidUserRole})
 	}
-	if err := DB.DB().Where("token=?", tokenClass.Token).First(&class).Error; err != nil {
+	if err := DB.DB().Where("token=?", tokenClass.Token).Preload("Students").First(&class).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{TokenIsInvalid: err.Error()})
 	}
-
+	fmt.Println(class)
 	for _, student := range class.Students {
 		if student.ID == user.ID {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "User already enrolled in this class"})
