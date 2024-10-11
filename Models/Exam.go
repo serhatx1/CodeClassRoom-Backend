@@ -14,5 +14,5 @@ type Exam struct {
 	DurationOfExam uint
 	Questions      []Question
 	Class          Class          `gorm:"foreignKey:ClassID"`
-	ExamStudents   []ExamStudents `gorm:"foreignKey:StudentID"`
+	ExamStudents   []ExamStudents `gorm:"foreignKey:ExamID"`
 }

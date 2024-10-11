@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type Question struct {
 	gorm.Model
-	Title       string
-	Prompt      string
 	ExamID      uint
+	ProblemID   uint
 	Submissions []Submission
+	Problem     Problem `gorm:"foreignKey:ProblemID"`
 }

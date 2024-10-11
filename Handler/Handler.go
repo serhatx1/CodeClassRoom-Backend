@@ -19,5 +19,6 @@ func SetupHandler(e *echo.Echo) {
 	e.POST("/api/class/join", middleware.JWTAuthMiddleware(Service.JoinClass))
 	e.POST("/api/exam/create", middleware.JWTAuthMiddleware(Service.SetExam))
 	e.GET("/api/exam/getAll", middleware.JWTAuthMiddleware(Service.GetAllExams))
+	e.POST("/api/exam/question/add", middleware.JWTAuthMiddleware(Service.AddQuestion))
 
 }
