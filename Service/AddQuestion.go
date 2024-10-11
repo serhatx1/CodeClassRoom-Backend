@@ -13,7 +13,6 @@ func AddQuestion(c echo.Context) error {
 	var userID string
 	var user Models.Users
 	var class Models.Class
-	var problem Models.Problem
 	var questions []Models.Question
 	if err := c.Bind(&exam); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
@@ -47,20 +46,20 @@ func AddQuestion(c echo.Context) error {
 	}
 	for _, question := range questions {
 		var existingQuestion Models.Question
+		var existingProblem Models.Problem
 		fmt.Println("id", question.ProblemID)
 		if err := DB.DB().Where("problem_id=?", question.ProblemID).First(&existingQuestion).Error; err == nil {
 			fmt.Printf("Question with ProblemID %d already exists, skipping...\n", question.ProblemID)
 			continue
 		}
+		fmt.Println("id", question.ProblemID, existingQuestion)
 
-		if err := DB.DB().Where("id=?", question.ProblemID).First(&problem).Error; err != nil {
+		if err := DB.DB().Where("id=?", question.ProblemID).First(&existingProblem).Error; err != nil {
 			fmt.Printf("Problem with ID %d not found, skipping question...\n", question.ProblemID)
 			continue
 		}
-
-		question.ProblemID = problem.ID
+		question.ProblemID = existingProblem.ID
 		question.ExamID = exam.ID
-
 		if err := DB.DB().Save(&question).Error; err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
