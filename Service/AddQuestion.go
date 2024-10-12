@@ -47,12 +47,10 @@ func AddQuestion(c echo.Context) error {
 	for _, question := range questions {
 		var existingQuestion Models.Question
 		var existingProblem Models.Problem
-		fmt.Println("id", question.ProblemID)
 		if err := DB.DB().Where("problem_id=?", question.ProblemID).First(&existingQuestion).Error; err == nil {
 			fmt.Printf("Question with ProblemID %d already exists, skipping...\n", question.ProblemID)
 			continue
 		}
-		fmt.Println("id", question.ProblemID, existingQuestion)
 
 		if err := DB.DB().Where("id=?", question.ProblemID).First(&existingProblem).Error; err != nil {
 			fmt.Printf("Problem with ID %d not found, skipping question...\n", question.ProblemID)
