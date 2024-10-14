@@ -3,22 +3,20 @@ package Service
 import (
 	"eSchool/DB"
 	"eSchool/Models"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 func RemoveOrAddProblem(c echo.Context) error {
 	var request struct {
-		ExamID    uint   `json:"examID"`
-		ProblemID uint   `json:"problemID"`
-		Action    string `json:"action"`
+		ExamID    uint
+		ProblemID uint
+		Action    string
 	}
 
 	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request format"})
 	}
-	fmt.Println("hi", request.ProblemID, request.ExamID)
 
 	var user Models.Users
 	var exam Models.Exam
