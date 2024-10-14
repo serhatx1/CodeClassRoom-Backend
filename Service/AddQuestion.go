@@ -17,6 +17,7 @@ func AddQuestion(c echo.Context) error {
 	if err := c.Bind(&exam); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
+	fmt.Println(exam)
 	questions = exam.Questions
 	if len(exam.Questions) < 1 {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Questions are null"})
