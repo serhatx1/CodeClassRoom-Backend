@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"sync"
 )
 
 func AddQuestion(c echo.Context) error {
@@ -13,12 +14,12 @@ func AddQuestion(c echo.Context) error {
 	var userID string
 	var user Models.Users
 	var class Models.Class
-	var questions []Models.Question
+
 	if err := c.Bind(&exam); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 	fmt.Println(exam)
-	questions = exam.Questions
+
 	if len(exam.Questions) < 1 {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Questions are null"})
 	}
@@ -34,6 +35,7 @@ func AddQuestion(c echo.Context) error {
 	if err := DB.DB().Where("id=?", userID).First(&user).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
+
 	if user.Role != "teacher" {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": InvalidUserRole})
 	}
@@ -45,25 +47,55 @@ func AddQuestion(c echo.Context) error {
 	if err := DB.DB().Where("id=? AND owner_id=?", exam.ClassID, user.ID).First(&class).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
-	for _, question := range questions {
-		var existingQuestion Models.Question
-		var existingProblem Models.Problem
-		if err := DB.DB().Where("problem_id=?", question.ProblemID).First(&existingQuestion).Error; err == nil {
-			fmt.Printf("Question with ProblemID %d already exists, skipping...\n", question.ProblemID)
-			continue
-		}
 
-		if err := DB.DB().Where("id=?", question.ProblemID).First(&existingProblem).Error; err != nil {
-			fmt.Printf("Problem with ID %d not found, skipping question...\n", question.ProblemID)
-			continue
-		}
-		question.ProblemID = existingProblem.ID
-		question.ExamID = exam.ID
-		if err := DB.DB().Save(&question).Error; err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	var wg sync.WaitGroup
+	results := make(chan error, len(exam.Questions))
+
+	for _, question := range exam.Questions {
+		wg.Add(1)
+		go func(q Models.Question) {
+			defer wg.Done()
+			var existingQuestion Models.Question
+			var existingProblem Models.Problem
+
+			if err := DB.DB().Where("problem_id=?", q.ProblemID).First(&existingQuestion).Error; err == nil {
+				fmt.Printf("Question with ProblemID %d already exists, skipping...\n", q.ProblemID)
+				results <- nil
+				return
+			}
+
+			if err := DB.DB().Where("id=?", q.ProblemID).First(&existingProblem).Error; err != nil {
+				fmt.Printf("Problem with ID %d not found, skipping question...\n", q.ProblemID)
+				results <- nil
+				return
+			}
+
+			q.ProblemID = existingProblem.ID
+			q.ExamID = exam.ID
+			if err := DB.DB().Save(&q).Error; err != nil {
+				results <- err
+				return
+			}
+			results <- nil
+		}(question)
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	var errorOccurred bool
+	for err := range results {
+		if err != nil {
+			errorOccurred = true
+			break
 		}
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"success": "Questions added"})
+	if errorOccurred {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to add one or more questions"})
+	}
 
+	return c.JSON(http.StatusOK, map[string]string{"success": "Questions added"})
 }

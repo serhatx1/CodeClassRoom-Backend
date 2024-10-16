@@ -23,4 +23,5 @@ func SetupHandler(e *echo.Echo) {
 	e.GET("/api/problems/get", middleware.JWTAuthMiddleware(Service.GetAllProblems))
 	e.POST("/api/problems/edit", middleware.JWTAuthMiddleware(Service.RemoveOrAddProblem))
 	e.GET("/api/exam/get", middleware.JWTAuthMiddleware(Service.MyExams))
+	e.GET("/api/problems/getAll", middleware.JWTAuthMiddleware(Service.ReturnAllProblems))
 }

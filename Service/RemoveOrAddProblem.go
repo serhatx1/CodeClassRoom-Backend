@@ -5,6 +5,7 @@ import (
 	"eSchool/Models"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"sync"
 )
 
 func RemoveOrAddProblem(c echo.Context) error {
@@ -51,17 +52,38 @@ func RemoveOrAddProblem(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid action"})
 	}
 
-	if request.Action == "add" {
-		newQuestion := Models.Question{
-			ProblemID: request.ProblemID,
-			ExamID:    request.ExamID,
+	var wg sync.WaitGroup
+	results := make(chan error, 1)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if request.Action == "add" {
+			newQuestion := Models.Question{
+				ProblemID: request.ProblemID,
+				ExamID:    request.ExamID,
+			}
+			if err := DB.DB().Create(&newQuestion).Error; err != nil {
+				results <- err
+				return
+			}
+		} else if request.Action == "remove" {
+			if err := DB.DB().Where("problem_id = ? AND exam_id = ?", request.ProblemID, request.ExamID).Delete(&Models.Question{}).Error; err != nil {
+				results <- err
+				return
+			}
 		}
-		if err := DB.DB().Create(&newQuestion).Error; err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to add problem"})
-		}
-	} else if request.Action == "remove" {
-		if err := DB.DB().Where("problem_id = ? AND exam_id = ?", request.ProblemID, request.ExamID).Delete(&Models.Question{}).Error; err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to remove problem"})
+		results <- nil
+	}()
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	for err := range results {
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
 	}
 
